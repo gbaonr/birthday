@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chúc Mừng Sinh Nhật Chị Thơm 🎂</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a0533 0%, #3b0764 40%, #1e1b4b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Quicksand', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── CANVAS LAYER ── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── BANNER ── */
+  .banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    pointer-events: none;
+  }
+  .banner-rope {
+    position: relative;
+    width: 100%;
+    height: 80px;
+  }
+  .banner-rope svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .banner-flags {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+  .flag {
+    width: 36px;
+    height: 48px;
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+    animation: flagSway 2s ease-in-out infinite alternate;
+  }
+  .flag:nth-child(odd) { animation-delay: 0.3s; }
+  .flag:nth-child(3n)  { animation-delay: 0.6s; }
+  @keyframes flagSway {
+    from { transform: rotate(-4deg); }
+    to   { transform: rotate(4deg); }
+  }
+
+  /* ── SCENE ── */
+  #scene {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* ── ENVELOPE ── */
+  .envelope-wrap {
+    position: relative;
+    width: 340px;
+    height: 240px;
+    cursor: pointer;
+    perspective: 900px;
+    transition: transform 0.3s;
+    /* envelope fades out after open */
+  }
+  .envelope-wrap:not(.open):hover { transform: scale(1.04); }
+  .envelope-wrap.open {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s 1.2s ease;
+  }
+
+  .envelope {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .env-body {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #f9a8d4 0%, #fbcfe8 50%, #fce7f3 100%);
+    border-radius: 4px 4px 14px 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 2px #f472b6;
+  }
+  .env-body::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(to top, #f9a8d4 0%, transparent 100%);
+  }
+  .env-left {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 50%;
+    background: #f472b6;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    z-index: 1;
+  }
+  .env-right {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 50%;
+    background: #ec4899;
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    z-index: 1;
+  }
+  .env-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 55%;
+    background: #fce7f3;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+    z-index: 2;
+  }
+  .env-flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 55%;
+    background: linear-gradient(160deg, #f9a8d4, #fbcfe8);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    z-index: 3;
+    transform-origin: top center;
+    transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top: 2px solid #f472b6;
+  }
+  .envelope-wrap.open .env-flap {
+    transform: rotateX(-180deg);
+  }
+  .env-seal {
+    position: absolute;
+    top: 38%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    font-size: 28px;
+    transition: opacity 0.3s;
+    filter: drop-shadow(0 2px 6px rgba(236,72,153,0.8));
+  }
+  .envelope-wrap.open .env-seal { opacity: 0; }
+
+  .env-label {
+    position: absolute;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    color: #9d174d;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    transition: opacity 0.3s;
+  }
+  .envelope-wrap.open .env-label { opacity: 0; }
+
+  /* ── CARD — floats independently above everything ── */
+  .card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(30%) scale(0.7);
+    width: 320px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: linear-gradient(160deg, #fff0f8 0%, #fff5fb 60%, #ffeaf6 100%);
+    border-radius: 18px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 2px #f9a8d4;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease;
+    padding: 28px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .card.show {
+    transform: translateX(-50%) translateY(-50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* sparkle border on card */
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, #f472b6, #a855f7, #ec4899, #7c3aed, #f472b6);
+    background-size: 300% 300%;
+    border-radius: 20px;
+    z-index: -1;
+    animation: gradientShift 4s linear infinite;
+  }
+  @keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── CAKE ── */
+  .cake-wrap {
+    position: relative;
+    width: 130px;
+    height: 110px;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .cake-wrap svg { width: 100%; height: 100%; }
+
+  /* candle flames */
+  .flame {
+    animation: flicker 0.15s infinite alternate;
+    transform-origin: bottom center;
+  }
+  .flame:nth-child(2) { animation-delay: 0.07s; }
+  .flame:nth-child(3) { animation-delay: 0.04s; }
+  @keyframes flicker {
+    from { transform: scaleY(1) scaleX(1); opacity: 1; }
+    to   { transform: scaleY(1.15) scaleX(0.85); opacity: 0.85; }
+  }
+
+  /* ── CARD TEXT ── */
+  .card-to {
+    font-size: 13px;
+    color: #be185d;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .card-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: 36px;
+    color: #9d174d;
+    text-align: center;
+    line-height: 1.1;
+    text-shadow: 0 2px 12px rgba(236,72,153,0.3);
+  }
+  .card-wish {
+    font-size: 14.5px;
+    color: #6b21a8;
+    text-align: center;
+    line-height: 1.7;
+    max-width: 260px;
+  }
+  .card-wish strong {
+    color: #9d174d;
+    font-weight: 700;
+  }
+  .card-sig {
+    font-family: 'Dancing Script', cursive;
+    font-size: 22px;
+    color: #c026d3;
+    margin-top: 4px;
+  }
+
+  /* star dividers */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f9a8d4;
+    font-size: 16px;
+    letter-spacing: 4px;
+  }
+
+  /* floating hearts on card */
+  .card-heart {
+    position: absolute;
+    font-size: 18px;
+    animation: floatHeart 3s ease-in-out infinite alternate;
+    opacity: 0.25;
+  }
+  .card-heart:nth-child(1)  { top: 8%; left: 6%; animation-delay: 0s; }
+  .card-heart:nth-child(2)  { top: 14%; right: 5%; animation-delay: 0.8s; }
+  .card-heart:nth-child(3)  { bottom: 18%; left: 4%; animation-delay: 0.4s; }
+  .card-heart:nth-child(4)  { bottom: 10%; right: 6%; animation-delay: 1.2s; }
+  @keyframes floatHeart {
+    from { transform: translateY(0) rotate(-10deg); }
+    to   { transform: translateY(-8px) rotate(10deg); }
+  }
+
+  /* hint text */
+  .hint {
+    position: absolute;
+    bottom: -38px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    white-space: nowrap;
+    animation: pulse 1.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .hint span { font-size: 18px; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+    50%       { opacity: 1;   transform: translateX(-50%) scale(1.06); }
+  }
+  .envelope-wrap.open .hint { display: none; }
+
+  @media (max-width: 480px) {
+    .envelope-wrap { width: 290px; height: 200px; }
+    .card { width: 270px; min-height: 400px; }
+    .envelope-wrap.open .card {
+      transform: translateX(-50%) translateY(-420px) scale(1);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background canvas: balloons, petals, stars -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Hanging banner -->
+<div class="banner">
+  <div class="banner-rope">
+    <svg viewBox="0 0 1000 80" preserveAspectRatio="none">
+      <path d="M0,20 Q125,60 250,20 Q375,60 500,20 Q625,60 750,20 Q875,60 1000,20"
+            stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+    </svg>
+    <div class="banner-flags" id="flagBar"></div>
+  </div>
+</div>
+
+<!-- Main scene -->
+<div id="scene">
+  <div class="envelope-wrap" id="env" onclick="openCard()">
+
+    <!-- Envelope body -->
+    <div class="envelope">
+      <div class="env-body"></div>
+      <div class="env-left"></div>
+      <div class="env-right"></div>
+      <div class="env-bottom"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal">💝</div>
+      <div class="env-label">✨ Nhấn để mở thiệp ✨</div>
+    </div>
+
+    <!-- Click hint -->
+    <div class="hint"><span>💌</span> Nhấn vào thiệp để mở <span>💌</span></div>
+  </div>
+</div>
+
+<!-- Card lives outside envelope-wrap so z-index is never clipped -->
+<div class="card" id="card">
+  <!-- decorative hearts -->
+  <div class="card-heart">🌸</div>
+  <div class="card-heart">💖</div>
+  <div class="card-heart">🌺</div>
+  <div class="card-heart">✨</div>
+
+  <div class="card-to">🎀 Kính gửi chị 🎀</div>
+  <div class="card-name">Lê Thị Thơm</div>
+
+  <!-- Cake SVG -->
+  <div class="cake-wrap">
+    <svg viewBox="0 0 130 110" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="65" cy="97" rx="58" ry="10" fill="#fde68a" opacity="0.6"/>
+      <rect x="10" y="68" width="110" height="30" rx="6" fill="#fbbf24"/>
+      <rect x="10" y="68" width="110" height="10" rx="4" fill="#f59e0b"/>
+      <path d="M10,72 Q25,62 40,72 Q55,62 70,72 Q85,62 100,72 Q115,62 120,72" stroke="#fde68a" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <rect x="22" y="44" width="86" height="28" rx="5" fill="#f472b6"/>
+      <rect x="22" y="44" width="86" height="9" rx="4" fill="#ec4899"/>
+      <path d="M22,48 Q36,38 50,48 Q64,38 78,48 Q92,38 108,48" stroke="#fbcfe8" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <rect x="36" y="24" width="58" height="24" rx="5" fill="#a78bfa"/>
+      <rect x="36" y="24" width="58" height="8" rx="4" fill="#7c3aed"/>
+      <path d="M36,28 Q50,18 65,28 Q80,18 94,28" stroke="#ddd6fe" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <rect x="45" y="50" width="6" height="3" rx="1.5" fill="#fde68a" transform="rotate(30 48 51)"/>
+      <rect x="62" y="56" width="6" height="3" rx="1.5" fill="#86efac" transform="rotate(-20 65 57)"/>
+      <rect x="78" y="50" width="6" height="3" rx="1.5" fill="#fca5a5" transform="rotate(15 81 51)"/>
+      <rect x="55" y="74" width="6" height="3" rx="1.5" fill="#a5f3fc" transform="rotate(-30 58 75)"/>
+      <rect x="80" y="74" width="6" height="3" rx="1.5" fill="#fde68a" transform="rotate(20 83 75)"/>
+      <rect x="28" y="74" width="6" height="3" rx="1.5" fill="#f9a8d4" transform="rotate(-10 31 75)"/>
+      <!-- candle 1 -->
+      <rect x="45" y="10" width="7" height="16" rx="3" fill="#f87171"/>
+      <ellipse cx="48.5" cy="10" rx="3.5" ry="2" fill="#fca5a5"/>
+      <g class="flame">
+        <ellipse cx="48.5" cy="7" rx="3" ry="5" fill="#fbbf24" opacity="0.9"/>
+        <ellipse cx="48.5" cy="8" rx="1.8" ry="3" fill="#fde68a"/>
+      </g>
+      <!-- candle 2 -->
+      <rect x="61" y="8" width="7" height="18" rx="3" fill="#34d399"/>
+      <ellipse cx="64.5" cy="8" rx="3.5" ry="2" fill="#6ee7b7"/>
+      <g class="flame">
+        <ellipse cx="64.5" cy="5" rx="3" ry="5" fill="#f97316" opacity="0.9"/>
+        <ellipse cx="64.5" cy="6" rx="1.8" ry="3" fill="#fde68a"/>
+      </g>
+      <!-- candle 3 -->
+      <rect x="77" y="10" width="7" height="16" rx="3" fill="#818cf8"/>
+      <ellipse cx="80.5" cy="10" rx="3.5" ry="2" fill="#a5b4fc"/>
+      <g class="flame">
+        <ellipse cx="80.5" cy="7" rx="3" ry="5" fill="#f59e0b" opacity="0.9"/>
+        <ellipse cx="80.5" cy="8" rx="1.8" ry="3" fill="#fde68a"/>
+      </g>
+      <text x="42" y="62" font-size="9" fill="white" opacity="0.9">★</text>
+      <text x="82" y="62" font-size="9" fill="white" opacity="0.9">★</text>
+      <text x="50" y="88" font-size="9" fill="#7c3aed" opacity="0.9">♥</text>
+      <text x="75" y="88" font-size="9" fill="#7c3aed" opacity="0.9">♥</text>
+    </svg>
+  </div>
+
+  <div class="divider">✦ ✦ ✦</div>
+  <div class="card-wish">
+    Chúc chị <strong>Lê Thị Thơm</strong> nhân ngày sinh nhật thật nhiều niềm vui, sức khỏe dồi dào, hạnh phúc ngập tràn.<br><br>
+    Mong chị luôn tỏa sáng như những nụ hoa thơm ngát, xinh đẹp và rạng rỡ mãi mãi! 🌸
+  </div>
+  <div class="divider">🌸 💖 🌸</div>
+  <div class="card-sig">Happy Birthday! 🎂🎉</div>
+</div>
+
+<script>
+/* ───────────────────────────────────────────
+   OPEN CARD
+─────────────────────────────────────────── */
+function openCard() {
+  const env = document.getElementById('env');
+  if (env.classList.contains('open')) return;
+  env.classList.add('open');
+  // show card after flap opens (~0.6s delay)
+  setTimeout(() => {
+    document.getElementById('card').classList.add('show');
+  }, 600);
+  // confetti burst after card fully rises
+  setTimeout(burstConfetti, 1200);
+}
+
+/* ───────────────────────────────────────────
+   BANNER FLAGS
+─────────────────────────────────────────── */
+const flagColors = ['#f472b6','#fbbf24','#a78bfa','#34d399','#f87171',
+                    '#60a5fa','#fb923c','#e879f9','#4ade80','#38bdf8'];
+const letters = ['H','A','P','P','Y',' ','B','I','R','T','H','D','A','Y','!'];
+const flagBar = document.getElementById('flagBar');
+const vw = window.innerWidth;
+const count = Math.floor(vw / 38);
+for (let i = 0; i < count; i++) {
+  const f = document.createElement('div');
+  f.className = 'flag';
+  f.style.background = flagColors[i % flagColors.length];
+  f.style.animationDelay = (i * 0.08) + 's';
+  flagBar.appendChild(f);
+}
+
+/* ───────────────────────────────────────────
+   CANVAS ANIMATIONS
+─────────────────────────────────────────── */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* Particles */
+const EMOJIS_FLOAT = ['🎈','🎈','🎈','🎉','🌸','🌺','🌹','⭐','✨','💫'];
+const EMOJIS_CONFETTI = ['🎊','🎉','💖','🌟','🎀','🍬'];
+
+class Particle {
+  constructor(type = 'balloon') {
+    this.type = type;
+    this.reset();
+  }
+  reset() {
+    if (this.type === 'balloon') {
+      this.x = Math.random() * canvas.width;
+      this.y = canvas.height + 60;
+      this.emoji = EMOJIS_FLOAT[Math.floor(Math.random() * EMOJIS_FLOAT.length)];
+      this.size = 20 + Math.random() * 22;
+      this.speed = 0.5 + Math.random() * 1.2;
+      this.drift = (Math.random() - 0.5) * 0.5;
+      this.sway = Math.random() * Math.PI * 2;
+      this.swaySpeed = 0.01 + Math.random() * 0.02;
+      this.opacity = 0.7 + Math.random() * 0.3;
+    } else {
+      // confetti burst particle
+      this.x = canvas.width / 2;
+      this.y = canvas.height * 0.35;
+      this.emoji = EMOJIS_CONFETTI[Math.floor(Math.random() * EMOJIS_CONFETTI.length)];
+      this.size = 18 + Math.random() * 14;
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 4 + Math.random() * 8;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed - 6;
+      this.gravity = 0.25;
+      this.opacity = 1;
+      this.fade = 0.012 + Math.random() * 0.01;
+      this.alive = true;
+    }
+  }
+  update() {
+    if (this.type === 'balloon') {
+      this.sway += this.swaySpeed;
+      this.x += Math.sin(this.sway) * 0.6 + this.drift;
+      this.y -= this.speed;
+      if (this.y < -80) this.reset();
+    } else {
+      this.x += this.vx;
+      this.vy += this.gravity;
+      this.y += this.vy;
+      this.opacity -= this.fade;
+      if (this.opacity <= 0) this.alive = false;
+    }
+  }
+  draw() {
+    ctx.globalAlpha = Math.max(0, this.opacity);
+    ctx.font = `${this.size}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.emoji, this.x, this.y);
+  }
+}
+
+const balloons = Array.from({length: 22}, () => {
+  const p = new Particle('balloon');
+  p.y = Math.random() * canvas.height; // start scattered
+  return p;
+});
+let confettiParticles = [];
+
+function burstConfetti() {
+  for (let i = 0; i < 60; i++) {
+    confettiParticles.push(new Particle('confetti'));
+  }
+}
+
+/* Stars */
+const stars = Array.from({length: 80}, () => ({
+  x: Math.random() * 3000,
+  y: Math.random() * 3000,
+  r: 0.5 + Math.random() * 2,
+  alpha: Math.random(),
+  speed: 0.005 + Math.random() * 0.015,
+}));
+
+function drawStars() {
+  stars.forEach(s => {
+    s.alpha += s.speed;
+    const a = 0.2 + 0.8 * Math.abs(Math.sin(s.alpha));
+    ctx.globalAlpha = a;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(s.x % canvas.width, s.y % canvas.height, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+/* Falling petals */
+class Petal {
+  constructor() { this.spawn(); }
+  spawn() {
+    this.x = Math.random() * canvas.width;
+    this.y = -20;
+    this.size = 10 + Math.random() * 14;
+    this.speed = 1.2 + Math.random() * 1.8;
+    this.drift = (Math.random() - 0.5) * 1.2;
+    this.rot = Math.random() * Math.PI * 2;
+    this.rotSpeed = (Math.random() - 0.5) * 0.08;
+    this.color = ['#fda4af','#f9a8d4','#c4b5fd','#fbcfe8','#fde68a'][Math.floor(Math.random()*5)];
+    this.opacity = 0.5 + Math.random() * 0.4;
+  }
+  update() {
+    this.x += this.drift;
+    this.y += this.speed;
+    this.rot += this.rotSpeed;
+    if (this.y > canvas.height + 20) this.spawn();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, this.size * 0.4, this.size, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const petals = Array.from({length: 30}, () => {
+  const p = new Petal();
+  p.y = Math.random() * canvas.height;
+  return p;
+});
+
+/* Main loop */
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawStars();
+  petals.forEach(p => { p.update(); p.draw(); });
+  balloons.forEach(b => { b.update(); b.draw(); });
+
+  confettiParticles = confettiParticles.filter(c => c.alive);
+  confettiParticles.forEach(c => { c.update(); c.draw(); });
+
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
